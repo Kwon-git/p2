@@ -19,7 +19,8 @@ class User:
         users.insert_one({
             "username": self.username,
             "password": self.password,
-            "schedule": self.schedule  # Lưu schedule mặc định
+            "schedule": self.schedule,# Lưu schedule mặc định
+            "role":"lecturer"
         })
 
     @staticmethod

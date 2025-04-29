@@ -91,7 +91,7 @@ const StudentTable = ({ students, handleAdd, getAllStudent }) => {
                                 <tr>
                                     <th className="border border-blue-500 text-center px-4 py-2">MSSV</th>
                                     <th className="border border-blue-500 text-center px-4 py-2">Name</th>
-                                    <th className="border border-blue-500 text-center px-4 py-2">Action</th>
+                                    <th className="border border-blue-500 text-center px-4 py-2"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -146,7 +146,39 @@ const StudentTable = ({ students, handleAdd, getAllStudent }) => {
                     </div>
                 </div >
             ) : (
-                <div>Khong co sinh vien</div>
+                <div>
+                    <h2 className='p-3'> Không có sinh viên</h2>
+                    <Modal
+                        isOpen={openModal}
+                        onRequestClose={() => setOpenModal(false)}
+                        style={{
+                            overlay: { backgroundColor: 'rgba(0, 0, 0, 0.4)' },
+                            content: {
+                                width: '300',
+                                maxWidth: '500px',
+                                margin: 'auto',
+                                borderRadius: '1rem',
+                                padding: '2rem',
+                                height: "fit-content"
+                            },
+                        }
+                        }
+                    >
+
+                        <CreateStudent onClose={() => {
+                            setOpenModal(false)
+                        }}
+                            getAllStudent={getAllStudent}
+                        />
+                    </Modal>
+                    <button
+                        onClick={handleAdd = () => setOpenModal(true)}
+                        className="flex items-center bg-blue-500 text-white font-medium px-4 py-2 mr-40 rounded-lg hover:bg-blue-600 transition duration-200"
+                    >
+                        <IoMdAdd className="mr-2 text-xl" />
+                        Thêm sinh viên
+                    </button>
+                </div>
             )
             }
 

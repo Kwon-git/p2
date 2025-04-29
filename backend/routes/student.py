@@ -5,11 +5,11 @@ import random
 import string
 from mail import send_email
 from flask_bcrypt import Bcrypt
-
+from collections import defaultdict
 
 bcrypt = Bcrypt()
 student_bp=Blueprint("student",__name__)
-
+mp = defaultdict(int)
 def get_random_string(length):
     # choose from all lowercase letter
     letters = string.ascii_lowercase
@@ -85,12 +85,14 @@ def create_account(mssv):
     print(user)
     password = get_random_string(6)
     password2 = password
+    username = mssv+ str(mp[mssv])
+    mp[mssv] += 1
     student = users.find_one({"mssv":mssv, "lecturer_id":user["_id"]})
     if not student:
      return jsonify({"error": "Không tìm thấy sinh viên"}), 404
     password = bcrypt.generate_password_hash(password).decode("utf-8")
     users.update_one({"_id": student["_id"]},
-                     {"$set":{"username":mssv, "password":password}})
+                     {"$set":{"username":username, "password":password}})
    
     send_email(get_email(student["hoten"],mssv),"Da cap tai khoan",f"Tai khoan cua ban: TK:{mssv}; MK: {password2}")
     print(password2)

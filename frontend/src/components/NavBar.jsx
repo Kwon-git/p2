@@ -5,8 +5,10 @@ const NavBar = () => {
     const [open, setOpen] = useState(false);
     const menuRef = useRef(null);
     const navigate = useNavigate();
+    const role = localStorage.getItem('role')
     const onLogout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('role')
         navigate('/login');
     }
     useEffect(() => {
@@ -101,7 +103,7 @@ const NavBar = () => {
                     {/* Menu chính */}
                     <div className="hidden md:flex space-x-4">
                         <a href="/home" className="text-white hover:text-yellow-300 transition">Home</a>
-                        <a href="/manage-student" className="text-white hover:text-yellow-300 transition">Students</a>
+                        {role == 'lecturer' ? (<a href="/manage-student" className="text-white hover:text-yellow-300 transition">Students</a>) : ('')}
                         <a href="/contact" className="text-white hover:text-yellow-300 transition">Contact</a>
                     </div>
 

@@ -1,12 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_jwt_extended import create_access_token, JWTManager,jwt_required, get_jwt_identity
-from models import User  # Import class User
+from models import User,users  # Import class User
 import pyotp
 from flask_cors import CORS
 from dotenv import load_dotenv
 from mail import init_mail, send_email
 import os
 from routes.student import student_bp
+
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +22,7 @@ app.config["JWT_SECRET_KEY"]= 'supersecret'
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 jwt = JWTManager(app)
 temp_user_store = {}
+
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -74,7 +76,7 @@ def login():
         return jsonify({"error": "Sai tài khoản hoặc mật khẩu"}), 401
 
     access_token = create_access_token(identity=username)
-    return jsonify({"token": access_token, "message": "Đăng nhập thành công!"})
+    return jsonify({"token": access_token, "role":user["role"],"message": "Đăng nhập thành công!"})
 
 
 @app.route("/update_schedule", methods=["POST"])
@@ -101,6 +103,31 @@ def get_schedule():
         return jsonify({"message": "User not found"}), 404
 
     return jsonify({"username": current_user, "schedule": user.get("schedule", {})}), 200
+
+# @app.route()
+@app.route('/update-duration',methods=["POST"])
+@jwt_required()
+def duration():
+    current_user = get_jwt_identity()
+    user = User.find_by_username(current_user)
+    data = request.json
+    if(not data):
+        return jsonify({"error":"Hay chon thoi gian"}), 400
+    duration =data.get("duration")
+    users.update_one({"_id":user["_id"]},
+                     {"$set":{"duration": duration}})
+    return jsonify({"message":"Thanh cong"})
+    
+@app.route('/get-duration',methods=["GET"])
+@jwt_required()
+def getDuration():
+    current_user = get_jwt_identity()
+    user = User.find_by_username(current_user)
+    data = user.get("duration")
+    if(not data):
+        return jsonify({"error":"Time Not found"}),404
+    return jsonify({"message":"Thanh cong","duration":data})    
+
 
 app.register_blueprint(student_bp)
 if __name__ == "__main__":

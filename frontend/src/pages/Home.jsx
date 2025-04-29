@@ -6,8 +6,29 @@ const Home = () => {
     const navigate = useNavigate();
     const [schedule, setSchedule] = useState({});
     const [loading, setLoading] = useState(false);
+    const [duration, setDuration] = useState('')
+    const [backDuration, setBackDuration] = useState('')
+    const [error, setError] = useState("")
     const daysOfWeek = [2, 3, 4, 5, 6, 7]; // Thứ 2 -> 7
-    const timeOptions = Array.from({ length: 24 }, (_, i) => (8 + i * 0.5).toFixed(1)) // Tạo danh sách từ 8.0 đến 19.5
+    //const timeOptions = Array.from({ length: 48 }, (_, i) => (8 + i * 0.25).toFixed(2)) / / Tạo danh sách từ 8.0 đến 19.5
+    const [timeOptions, setTimeOptions] = useState([])
+    const array = [0.25, 0.5, 0.75, 1]
+
+    const getTimeOptions = (backDuration) => {
+        switch (backDuration) {
+            case '0.25':
+                setTimeOptions(Array.from({ length: 48 }, (_, i) => (8 + i * 0.25).toFixed(2)));
+                break;
+            case '0.5':
+                setTimeOptions(Array.from({ length: 24 }, (_, i) => (8 + i * 0.5).toFixed(2)));
+                break;
+            case '0.75':
+                setTimeOptions(Array.from({ length: 16 }, (_, i) => (8 + i * 0.75).toFixed(2)));
+                break;
+            case '1':
+                setTimeOptions(Array.from({ length: 13 }, (_, i) => (8 + i * 1).toFixed(2)));
+        }
+    };
 
     const getAllSchedule = async () => {
         setLoading(true);
@@ -28,15 +49,35 @@ const Home = () => {
     };
 
     useEffect(() => {
+        getDuration();
+        console.log(backDuration)
         getAllSchedule();
         return () => { };
     }, []);
 
+    useEffect(() => {
+        if (backDuration) {
+            getTimeOptions(backDuration);
+        }
+    }, [backDuration]);
+
     const formatTime = (time) => {
-        const hours = Math.floor(time);
-        const minutes = (time % 1) === 0.5 ? "30" : "00";
+        const hours = Math.floor(time).toString().padStart(2, '0');
+        const fraction = time % 1;
+        let minutes = '00';
+
+        if (fraction === 0.25) minutes = '15';
+        else if (fraction === 0.5) minutes = '30';
+        else if (fraction === 0.75) minutes = '45';
+
         return `${hours}h${minutes}`;
     };
+
+    const formatDuration = (time) => {
+        let minute = time * 60;
+        return `${minute} minutes`
+    }
+
 
     // Thêm một khung giờ mới cho ngày đã chọn
     const addSchedule = (day) => {
@@ -124,80 +165,169 @@ const Home = () => {
             });
     };
 
+    const handleDuration = (e) => {
+        e.preventDefault();
+        setLoading(true)
+        const token = localStorage.getItem("token"); // Lấy token từ localStorage
+        axios.post("http://localhost:5000/update-duration", {
+            "duration": duration
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`, // Gửi token trong headers
+            }
+        }
+        )
+            .then((response) => {
+                navigate('/home');
+                setBackDuration(duration);
+            })
+            .catch((error) => {
+                setLoading(false);
+                if (error.response && error.response.data && error.response.data.error) {
+                    setError(error.response.data.error);
+                } else {
+                    setError('An error occurred. Please try again.');
+                }
+            });
+    }
+
+    const getDuration = () => {
+        const token = localStorage.getItem("token");
+        axios.get("http://localhost:5000/get-duration", {
+            headers: {
+                Authorization: `Bearer ${token}`, // Gửi token trong headers
+            },
+        })
+            .then((response) => {
+                setDuration(response.data.duration);
+                setBackDuration(response.data.duration);
+                console.log(timeOptions)
+            })
+            .catch((error) => {
+                setLoading(false);
+                if (error.response && error.response.data && error.response.data.error) {
+                    setError(error.response.data.error);
+                } else {
+                    setError('An error occurred. Please try again.');
+                }
+            });
+    }
+
     return (
         <div>
             <NavBar />
-            <div className="max-w-3xl mx-auto p-6">
-                <h1 className="text-2xl font-bold mb-4">Your Schedule</h1>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-50 gap-y-10 justify-center">
-                    {daysOfWeek.map((day) => (
-                        <div key={day} className="border p-6 rounded-md shadow w-full min-w-[300px] max-w-[350px]">
-                            <h2 className="text-lg font-semibold">Thứ {day}</h2>
-
-                            {/* Hiển thị danh sách khung giờ */}
-                            {schedule[day] && schedule[day].length > 0 ? (
-                                schedule[day].map((slot, index) => (
-                                    <div key={index} className="flex gap-2 mb-2 items-center">
-                                        <h3> from </h3>
-                                        <select
-                                            value={slot.start_time}
-                                            onChange={(e) => updateSchedule(day, index, "start_time", e.target.value)}
-                                            className="border p-2 rounded-md w-24"
-                                        >
-                                            <option value="">Giờ</option>
-                                            {timeOptions.map((time) => (
-                                                <option key={time} value={time}>{formatTime(time)}</option>
-                                            ))}
-                                        </select>
-                                        <h3> to </h3>
-                                        <select
-                                            value={slot.end_time}
-                                            onChange={(e) => updateSchedule(day, index, "end_time", e.target.value)}
-                                            className="border p-2 rounded-md w-24"
-                                        >
-                                            <option value="">Giờ</option>
-                                            {timeOptions
-                                                .filter((time) => !slot.start_time || parseFloat(time) > parseFloat(slot.start_time))
-                                                .map((time) => (
-                                                    <option key={time} value={time}>{formatTime(time)}</option>
-                                                ))}
-                                        </select>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-gray-500">Chưa có lịch trống</p>
-                            )}
-                            {/* Nút thêm khung giờ */}
-                            <button
-                                className="mt-2 bg-blue-500 text-white px-3 py-1 rounded-md"
-                                onClick={() => addSchedule(day)}
+            <div className="flex flex-row">
+                <div className="max-w-xl mx-3">
+                    <form
+                        className="bg-white shadow-md rounded-lg px-6 pt-6 pb-4"
+                        onSubmit={handleDuration}
+                    >
+                        <div className="mb-4">
+                            <label htmlFor="duration" className="block text-gray-700 text-sm font-medium mb-1">
+                                Thời gian hẹn
+                            </label>
+                            <select
+                                id="duration"
+                                value={duration || ""}
+                                className="border border-gray-300 rounded w-full py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                onChange={(e) => setDuration(e.target.value)}
                             >
-                                + Thêm khoảng thời gian
-                            </button>
-                            {/* Nút xóa khoảng thời gian cuối cùng */}
-                            {schedule[day] && schedule[day].length > 0 && (
-                                <button
-                                    className="mt-2 bg-red-500 text-white px-3 py-1 rounded-md justify-center"
-                                    onClick={() => removeLastSchedule(day)}
-                                >
-                                    Xóa
-                                </button>
-                            )}
+                                <option value="">Giờ</option>
+                                {array.map((time) => (
+                                    <option key={time} value={time}>{formatDuration(time)}</option>
+                                ))}
+                            </select>
+                            {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
                         </div>
-                    ))}
+                        <div className="flex justify-end">
+                            <button
+                                type="submit"
+                                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
-                {/* Nút lưu lịch trình */}
-                < button
-                    className="mt-6 bg-green-500 text-white px-4 py-2 rounded-md block mx-auto center"
-                    onClick={saveSchedule}
-                >
-                    Lưu lịch trình
-                </button >
-            </div >
+                <div className="max-w-3xl mx-auto p-6">
+                    <h1 className="text-2xl font-bold mb-4">Your Schedule</h1>
+                    {timeOptions.length > 0 ? (
+                        <div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-50 gap-y-10 justify-center">
+                                {daysOfWeek.map((day) => (
+                                    <div key={day} className="border p-6 rounded-md shadow w-full min-w-[300px] max-w-[350px]">
+                                        <h2 className="text-lg font-semibold">Thứ {day}</h2>
+
+                                        {/* Hiển thị danh sách khung giờ */}
+                                        {schedule[day] && schedule[day].length > 0 ? (
+                                            schedule[day].map((slot, index) => (
+                                                <div key={index} className="flex gap-2 mb-2 items-center">
+                                                    <h3> from </h3>
+                                                    <select
+                                                        value={slot.start_time}
+                                                        onChange={(e) => updateSchedule(day, index, "start_time", e.target.value)}
+                                                        className="border p-2 rounded-md w-24"
+                                                    >
+                                                        <option value="">Giờ</option>
+                                                        {timeOptions.map((time) => (
+                                                            <option key={time} value={time}>{formatTime(time)}</option>
+                                                        ))}
+                                                    </select>
+                                                    <h3> to </h3>
+                                                    <select
+                                                        value={slot.end_time}
+                                                        onChange={(e) => updateSchedule(day, index, "end_time", e.target.value)}
+                                                        className="border p-2 rounded-md w-24"
+                                                    >
+                                                        <option value="">Giờ</option>
+                                                        {timeOptions
+                                                            .filter((time) => !slot.start_time || parseFloat(time) > parseFloat(slot.start_time))
+                                                            .map((time) => (
+                                                                <option key={time} value={time}>{formatTime(time)}</option>
+                                                            ))}
+                                                    </select>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500">Chưa có lịch trống</p>
+                                        )}
+                                        {/* Nút thêm khung giờ */}
+                                        <button
+                                            className="mt-2 bg-blue-500 text-white hover:bg-blue-600 px-3 py-1 rounded-md"
+                                            onClick={() => addSchedule(day)}
+                                        >
+                                            + Thêm khoảng thời gian
+                                        </button>
+                                        {/* Nút xóa khoảng thời gian cuối cùng */}
+                                        {schedule[day] && schedule[day].length > 0 && (
+                                            <button
+                                                className="mt-2 bg-red-500 text-white hover:bg-red-600 px-3 py-1 rounded-md justify-center"
+                                                onClick={() => removeLastSchedule(day)}
+                                            >
+                                                Xóa
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Nút lưu lịch trình */}
+                            < button
+                                className="mt-6 bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded-md block mx-auto center"
+                                onClick={saveSchedule}
+                            >
+                                Lưu lịch trình
+                            </button >
+                        </div>
+                    ) : (
+                        <p>Hãy nhập thời gian trước</p>
+                    )}
+                </div>
+            </div>
         </div>
     );
+
 };
 
 export default Home;
