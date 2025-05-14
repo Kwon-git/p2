@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from mail import init_mail, send_email
 import os
 from routes.student import student_bp
-
+from routes.sort import sort_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -130,5 +130,6 @@ def getDuration():
 
 
 app.register_blueprint(student_bp)
+app.register_blueprint(sort_bp)
 if __name__ == "__main__":
     app.run(debug=True)

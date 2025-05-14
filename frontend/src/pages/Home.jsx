@@ -2,18 +2,57 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
+import SortForm from "../components/SortForm";
+import Modal from 'react-modal'
 const Home = () => {
     const navigate = useNavigate();
+    const [scheduleResult, setScheduleResult] = useState([]);
     const [schedule, setSchedule] = useState({});
     const [loading, setLoading] = useState(false);
     const [duration, setDuration] = useState('')
     const [backDuration, setBackDuration] = useState('')
     const [error, setError] = useState("")
+    const [students, setStudents] = useState([])
+    const [openModal, setOpenModal] = useState(false)
+    const [selected, setSelected] = useState([])
     const daysOfWeek = [2, 3, 4, 5, 6, 7]; // Thứ 2 -> 7
     //const timeOptions = Array.from({ length: 48 }, (_, i) => (8 + i * 0.25).toFixed(2)) / / Tạo danh sách từ 8.0 đến 19.5
     const [timeOptions, setTimeOptions] = useState([])
     const array = [0.25, 0.5, 0.75, 1]
 
+
+    const getAllStudent = async () => {
+        setLoading(true);
+        const token = localStorage.getItem("token"); // Lấy token từ localStorage
+        axios.get("http://localhost:5000/get-all-student", {
+            headers: {
+                Authorization: `Bearer ${token}`, // Gửi token trong headers
+            },
+        })
+            .then((response) => {
+                setStudents(response.data.data);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.log(error);
+                setLoading(false);
+            });
+    };
+    const handleCreateOk = (selectedStudents) => {
+        const token = localStorage.getItem("token")
+        axios.post('http://localhost:5000/sort-schedule', { 'dssv': selectedStudents }, {
+            headers: {
+                Authorization: `Bearer ${token}`, // Gửi token trong headers
+            }
+        })
+            .then((response) => {
+                setScheduleResult(response.data.schedule_res);
+                setOpenModal(false)
+            })
+            .catch(() => {
+
+            })
+    }
     const getTimeOptions = (backDuration) => {
         switch (backDuration) {
             case '0.25':
@@ -29,6 +68,18 @@ const Home = () => {
                 setTimeOptions(Array.from({ length: 13 }, (_, i) => (8 + i * 1).toFixed(2)));
         }
     };
+    const convert = (x) => {
+        const a = Math.floor(x / 24);
+        const b = (x - a * 24) * 60;
+        const c = Math.floor(b / 60);
+        let d = Math.floor(b - c * 60);
+
+        if (d === 0) d = '00';
+        else d = d.toString().padStart(2, '0');
+
+        const res = 'T' + (a + 2) + ' ' + c + 'h' + d;
+        return res;
+    }
 
     const getAllSchedule = async () => {
         setLoading(true);
@@ -50,7 +101,7 @@ const Home = () => {
 
     useEffect(() => {
         getDuration();
-        console.log(backDuration)
+        getAllStudent();
         getAllSchedule();
         return () => { };
     }, []);
@@ -89,23 +140,6 @@ const Home = () => {
     };
 
 
-    // Cập nhật thời gian của lịch
-    // const updateSchedule = (day, index, field, value) => {
-    //     setSchedule((prev) => {
-    //         const updatedDay = [...prev[day]];
-    //         updatedDay[index][field] = value ? parseFloat(value) : "";
-    //         return { ...prev, [day]: updatedDay };
-    //     });
-    // };
-    // const updateSchedule = (day, index, field, value) => {
-    //     setSchedule((prevSchedule) => ({
-    //         ...prevSchedule,
-    //         [day]: prevSchedule[day].map((slot, i) =>
-    //             i === index ? { ...slot, [field]: value } : slot
-    //         ),
-
-    //     }));
-    // };
     const updateSchedule = (day, index, field, value) => {
         setSchedule((prev) => ({
             ...prev,
@@ -201,7 +235,6 @@ const Home = () => {
             .then((response) => {
                 setDuration(response.data.duration);
                 setBackDuration(response.data.duration);
-                console.log(timeOptions)
             })
             .catch((error) => {
                 setLoading(false);
@@ -319,13 +352,47 @@ const Home = () => {
                             >
                                 Lưu lịch trình
                             </button >
+
+                            < button
+                                className="mt-6 bg-cyan-500 text-white hover:bg-cyan-600 px-4 py-2 rounded-md block mx-auto center"
+                                onClick={() => setOpenModal(true)}
+                            >
+                                Sắp xếp lịch
+                            </button >
+                            <Modal
+                                isOpen={openModal}
+                                onRequestClose={() => setOpenModal(false)}
+                                style={{
+                                    overlay: { backgroundColor: 'rgba(0, 0, 0, 0.4)' },
+                                    content: {
+                                        width: '300',
+                                        maxWidth: '500px',
+                                        margin: 'auto',
+                                        borderRadius: '1rem',
+                                        padding: '2rem',
+                                        height: "fit-content"
+                                    },
+                                }
+                                }
+                            >
+                                <SortForm students={students} handleCreateOk={handleCreateOk} />
+                            </Modal>
+                            {scheduleResult.length > 0 && (
+                                <ul className="mt-4">
+                                    {scheduleResult.map(([mssv, time], index) => (
+                                        <li key={index}>
+                                            <strong>{mssv}</strong> - {convert(time)}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
                     ) : (
                         <p>Hãy nhập thời gian trước</p>
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 
 };

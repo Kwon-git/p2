@@ -94,7 +94,7 @@ def create_account(mssv):
     users.update_one({"_id": student["_id"]},
                      {"$set":{"username":username, "password":password}})
    
-    send_email(get_email(student["hoten"],mssv),"Da cap tai khoan",f"Tai khoan cua ban: TK:{mssv}; MK: {password2}")
+    send_email(get_email(student["hoten"],mssv),"Da cap tai khoan",f"Tai khoan cua ban: TK:{username}; MK: {password2}")
     print(password2)
     return jsonify({"message":"Tao thanh cong"})
     
