@@ -160,6 +160,21 @@ def sort():
                break
     print("Days: ",days)            
     print("Max matching: ",check)
-    print(schedule)       
-    return jsonify({"message": "OK","schedule_res":schedule})
+    print(schedule)
+    users.update_one(
+            {"username": current_user},         # Điều kiện lọc (filter)
+            {"$set": {"lichhen": schedule}}
+        )       
+    # return jsonify({"message": "OK","schedule_res":schedule})
+    return jsonify({"message": "OK"})
+
+@sort_bp.route('/get-lichhen',methods=['GET'])
+@jwt_required()
+def getLichhen():
+    current_user=get_jwt_identity()
+    user = User.find_by_username(current_user)
+    res = user['lichhen']
+    if(not res):
+        return jsonify({'error':"Chua xep lich hen"}), 404
+    return jsonify({'message':'OK', 'lichhen':res})
     

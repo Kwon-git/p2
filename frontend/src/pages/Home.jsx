@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import SortForm from "../components/SortForm";
 import Modal from 'react-modal'
+import TimeTable from "../components/TimeTable";
 const Home = () => {
     const navigate = useNavigate();
+    const [events, setEvents] = useState([]);
     const [scheduleResult, setScheduleResult] = useState([]);
     const [schedule, setSchedule] = useState({});
     const [loading, setLoading] = useState(false);
@@ -14,7 +16,6 @@ const Home = () => {
     const [error, setError] = useState("")
     const [students, setStudents] = useState([])
     const [openModal, setOpenModal] = useState(false)
-    const [selected, setSelected] = useState([])
     const daysOfWeek = [2, 3, 4, 5, 6, 7]; // Thứ 2 -> 7
     //const timeOptions = Array.from({ length: 48 }, (_, i) => (8 + i * 0.25).toFixed(2)) / / Tạo danh sách từ 8.0 đến 19.5
     const [timeOptions, setTimeOptions] = useState([])
@@ -38,6 +39,41 @@ const Home = () => {
                 setLoading(false);
             });
     };
+
+    useEffect(() => {
+        console.log("Events đã cập nhật:", events);
+    }, [events]);
+
+    const convert = (x) => {
+        //tinh gio
+        const a = Math.floor(x / 24);//thu
+        const b = (x - a * 24) * 60;
+        const c = Math.floor(b / 60);
+        let d = Math.floor(b - c * 60);
+        if (d === 0) d = '00';
+        else d = d.toString().padStart(2, '0');
+        const res = c.toString() + ':' + d;
+        //Tinh ngay
+        const date = new Date()
+        const today = new Date(date)
+        const currentDay = today.getDay() // 0 = Chủ nhật, 1 = Thứ hai, ..., 6 = Thứ bảy
+        const d1 = new Date(today)
+        d1.setDate(today.getDate() + (a + 1 - currentDay))
+        const res2 = d1.toLocaleDateString("en-CA").slice(0, 10) // 'YYYY-MM-DD'
+        return res2 + ' ' + res;
+    }
+
+    const getEvents = () => {
+        if (!scheduleResult || scheduleResult.length === 0 || !duration) return;
+        const newEvents = scheduleResult.map(([mssv, time], index) => ({
+            id: index.toString(),
+            title: mssv,
+            start: convert(time),
+            end: convert(time + parseFloat(duration)),
+        }));
+        setEvents(newEvents);
+    }
+
     const handleCreateOk = (selectedStudents) => {
         const token = localStorage.getItem("token")
         axios.post('http://localhost:5000/sort-schedule', { 'dssv': selectedStudents }, {
@@ -46,13 +82,29 @@ const Home = () => {
             }
         })
             .then((response) => {
-                setScheduleResult(response.data.schedule_res);
+                getLichHen()
                 setOpenModal(false)
             })
             .catch(() => {
 
             })
     }
+
+    const getLichHen = () => {
+        const token = localStorage.getItem("token")
+        axios.get('http://localhost:5000/get-lichhen', {
+            headers: {
+                Authorization: `Bearer ${token}`, // Gửi token trong headers
+            }
+        })
+            .then((response) => {
+                setScheduleResult(response.data.lichhen);
+            })
+            .catch(() => {
+                console.log(error.response);
+            })
+    }
+
     const getTimeOptions = (backDuration) => {
         switch (backDuration) {
             case '0.25':
@@ -68,18 +120,18 @@ const Home = () => {
                 setTimeOptions(Array.from({ length: 13 }, (_, i) => (8 + i * 1).toFixed(2)));
         }
     };
-    const convert = (x) => {
-        const a = Math.floor(x / 24);
-        const b = (x - a * 24) * 60;
-        const c = Math.floor(b / 60);
-        let d = Math.floor(b - c * 60);
+    // const convert = (x) => {
+    //     const a = Math.floor(x / 24);
+    //     const b = (x - a * 24) * 60;
+    //     const c = Math.floor(b / 60);
+    //     let d = Math.floor(b - c * 60);
 
-        if (d === 0) d = '00';
-        else d = d.toString().padStart(2, '0');
+    //     if (d === 0) d = '00';
+    //     else d = d.toString().padStart(2, '0');
 
-        const res = 'T' + (a + 2) + ' ' + c + 'h' + d;
-        return res;
-    }
+    //     const res = 'T' + (a + 2) + ' ' + c + 'h' + d;
+    //     return res;
+    // }
 
     const getAllSchedule = async () => {
         setLoading(true);
@@ -100,9 +152,16 @@ const Home = () => {
     };
 
     useEffect(() => {
+        if (scheduleResult.length > 0 && duration) {
+            getEvents();
+        }
+    }, [scheduleResult, duration]);
+
+    useEffect(() => {
         getDuration();
         getAllStudent();
         getAllSchedule();
+        getLichHen();
         return () => { };
     }, []);
 
@@ -377,7 +436,7 @@ const Home = () => {
                             >
                                 <SortForm students={students} handleCreateOk={handleCreateOk} />
                             </Modal>
-                            {scheduleResult.length > 0 && (
+                            {/* {scheduleResult.length > 0 && (
                                 <ul className="mt-4">
                                     {scheduleResult.map(([mssv, time], index) => (
                                         <li key={index}>
@@ -385,7 +444,13 @@ const Home = () => {
                                         </li>
                                     ))}
                                 </ul>
+                            )} */}
+                            {events.length > 0 ? (
+                                <TimeTable events={events} />
+                            ) : (
+                                <p>Đang tải dữ liệu lịch hẹn...</p>
                             )}
+
                         </div>
                     ) : (
                         <p>Hãy nhập thời gian trước</p>
