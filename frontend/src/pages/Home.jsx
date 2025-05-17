@@ -16,7 +16,7 @@ const Home = () => {
     const [error, setError] = useState("")
     const [students, setStudents] = useState([])
     const [openModal, setOpenModal] = useState(false)
-    const daysOfWeek = [2, 3, 4, 5, 6, 7]; // Thứ 2 -> 7
+    const daysOfWeek = [2, 3, 4, 5, 6]; // Thứ 2 -> 7
     //const timeOptions = Array.from({ length: 48 }, (_, i) => (8 + i * 0.25).toFixed(2)) / / Tạo danh sách từ 8.0 đến 19.5
     const [timeOptions, setTimeOptions] = useState([])
     const array = [0.25, 0.5, 0.75, 1]
@@ -309,151 +309,150 @@ const Home = () => {
         <div>
             <NavBar />
             <div className="flex flex-row">
-                <div className="max-w-xl mx-3">
-                    <form
-                        className="bg-white shadow-md rounded-lg px-6 pt-6 pb-4"
-                        onSubmit={handleDuration}
-                    >
-                        <div className="mb-4">
-                            <label htmlFor="duration" className="block text-gray-700 text-sm font-medium mb-1">
-                                Thời gian hẹn
-                            </label>
-                            <select
-                                id="duration"
-                                value={duration || ""}
-                                className="border border-gray-300 rounded w-full py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                onChange={(e) => setDuration(e.target.value)}
-                            >
-                                <option value="">Giờ</option>
-                                {array.map((time) => (
-                                    <option key={time} value={time}>{formatDuration(time)}</option>
-                                ))}
-                            </select>
-                            {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-                        </div>
-                        <div className="flex justify-end">
-                            <button
-                                type="submit"
-                                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-                            >
-                                OK
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                <div className="w-1/5 flex flex-col">
+                    <div className="max-w-xl mx-3">
+                        <form
+                            className="bg-white shadow-md rounded-lg px-6 pt-6 pb-4"
+                            onSubmit={handleDuration}
+                        >
+                            <div className="mb-4">
+                                <label htmlFor="duration" className="block text-gray-700 text-sm font-medium mb-1">
+                                    Thời gian hẹn
+                                </label>
+                                <select
+                                    id="duration"
+                                    value={duration || ""}
+                                    className="border border-gray-300 rounded w-full py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    onChange={(e) => setDuration(e.target.value)}
+                                >
+                                    <option value="">Giờ</option>
+                                    {array.map((time) => (
+                                        <option key={time} value={time}>{formatDuration(time)}</option>
+                                    ))}
+                                </select>
+                                {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+                            </div>
+                            <div className="flex justify-end">
+                                <button
+                                    type="submit"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
+                                >
+                                    OK
+                                </button>
+                            </div>
+                        </form>
+                    </div>
 
-                <div className="max-w-3xl mx-auto p-6">
-                    <h1 className="text-2xl font-bold mb-4">Your Schedule</h1>
-                    {timeOptions.length > 0 ? (
-                        <div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-50 gap-y-10 justify-center">
-                                {daysOfWeek.map((day) => (
-                                    <div key={day} className="border p-6 rounded-md shadow w-full min-w-[300px] max-w-[350px]">
-                                        <h2 className="text-lg font-semibold">Thứ {day}</h2>
+                    <div className="max-w-3xl p-6">
+                        <h1 className="text-2xl font-bold mb-4">Your Schedule</h1>
+                        {timeOptions.length > 0 ? (
+                            <div>
+                                <div className="grid grid-cols-1  gap-x-50 gap-y-10 justify-center">
+                                    {daysOfWeek.map((day) => (
+                                        <div key={day} className="border p-6 rounded-md shadow w-full min-w-[300px] max-w-[350px]">
+                                            <h2 className="text-lg font-semibold">Thứ {day}</h2>
 
-                                        {/* Hiển thị danh sách khung giờ */}
-                                        {schedule[day] && schedule[day].length > 0 ? (
-                                            schedule[day].map((slot, index) => (
-                                                <div key={index} className="flex gap-2 mb-2 items-center">
-                                                    <h3> from </h3>
-                                                    <select
-                                                        value={slot.start_time}
-                                                        onChange={(e) => updateSchedule(day, index, "start_time", e.target.value)}
-                                                        className="border p-2 rounded-md w-24"
-                                                    >
-                                                        <option value="">Giờ</option>
-                                                        {timeOptions.map((time) => (
-                                                            <option key={time} value={time}>{formatTime(time)}</option>
-                                                        ))}
-                                                    </select>
-                                                    <h3> to </h3>
-                                                    <select
-                                                        value={slot.end_time}
-                                                        onChange={(e) => updateSchedule(day, index, "end_time", e.target.value)}
-                                                        className="border p-2 rounded-md w-24"
-                                                    >
-                                                        <option value="">Giờ</option>
-                                                        {timeOptions
-                                                            .filter((time) => !slot.start_time || parseFloat(time) > parseFloat(slot.start_time))
-                                                            .map((time) => (
+                                            {/* Hiển thị danh sách khung giờ */}
+                                            {schedule[day] && schedule[day].length > 0 ? (
+                                                schedule[day].map((slot, index) => (
+                                                    <div key={index} className="flex gap-2 mb-2 items-center">
+                                                        <h3> from </h3>
+                                                        <select
+                                                            value={slot.start_time}
+                                                            onChange={(e) => updateSchedule(day, index, "start_time", e.target.value)}
+                                                            className="border p-2 rounded-md w-24"
+                                                        >
+                                                            <option value="">Giờ</option>
+                                                            {timeOptions.map((time) => (
                                                                 <option key={time} value={time}>{formatTime(time)}</option>
                                                             ))}
-                                                    </select>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p className="text-gray-500">Chưa có lịch trống</p>
-                                        )}
-                                        {/* Nút thêm khung giờ */}
-                                        <button
-                                            className="mt-2 bg-blue-500 text-white hover:bg-blue-600 px-3 py-1 rounded-md"
-                                            onClick={() => addSchedule(day)}
-                                        >
-                                            + Thêm khoảng thời gian
-                                        </button>
-                                        {/* Nút xóa khoảng thời gian cuối cùng */}
-                                        {schedule[day] && schedule[day].length > 0 && (
+                                                        </select>
+                                                        <h3> to </h3>
+                                                        <select
+                                                            value={slot.end_time}
+                                                            onChange={(e) => updateSchedule(day, index, "end_time", e.target.value)}
+                                                            className="border p-2 rounded-md w-24"
+                                                        >
+                                                            <option value="">Giờ</option>
+                                                            {timeOptions
+                                                                .filter((time) => !slot.start_time || parseFloat(time) > parseFloat(slot.start_time))
+                                                                .map((time) => (
+                                                                    <option key={time} value={time}>{formatTime(time)}</option>
+                                                                ))}
+                                                        </select>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-gray-500">Chưa có lịch trống</p>
+                                            )}
+                                            {/* Nút thêm khung giờ */}
                                             <button
-                                                className="mt-2 bg-red-500 text-white hover:bg-red-600 px-3 py-1 rounded-md justify-center"
-                                                onClick={() => removeLastSchedule(day)}
+                                                className="mt-2 bg-blue-500 text-white hover:bg-blue-600 px-3 py-1 rounded-md"
+                                                onClick={() => addSchedule(day)}
                                             >
-                                                Xóa
+                                                + Thêm khoảng thời gian
                                             </button>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Nút lưu lịch trình */}
-                            < button
-                                className="mt-6 bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded-md block mx-auto center"
-                                onClick={saveSchedule}
-                            >
-                                Lưu lịch trình
-                            </button >
-
-                            < button
-                                className="mt-6 bg-cyan-500 text-white hover:bg-cyan-600 px-4 py-2 rounded-md block mx-auto center"
-                                onClick={() => setOpenModal(true)}
-                            >
-                                Sắp xếp lịch
-                            </button >
-                            <Modal
-                                isOpen={openModal}
-                                onRequestClose={() => setOpenModal(false)}
-                                style={{
-                                    overlay: { backgroundColor: 'rgba(0, 0, 0, 0.4)' },
-                                    content: {
-                                        width: '300',
-                                        maxWidth: '500px',
-                                        margin: 'auto',
-                                        borderRadius: '1rem',
-                                        padding: '2rem',
-                                        height: "fit-content"
-                                    },
-                                }
-                                }
-                            >
-                                <SortForm students={students} handleCreateOk={handleCreateOk} />
-                            </Modal>
-                            {/* {scheduleResult.length > 0 && (
-                                <ul className="mt-4">
-                                    {scheduleResult.map(([mssv, time], index) => (
-                                        <li key={index}>
-                                            <strong>{mssv}</strong> - {convert(time)}
-                                        </li>
+                                            {/* Nút xóa khoảng thời gian cuối cùng */}
+                                            {schedule[day] && schedule[day].length > 0 && (
+                                                <button
+                                                    className="mt-2 bg-red-500 text-white hover:bg-red-600 px-3 py-1 rounded-md justify-center"
+                                                    onClick={() => removeLastSchedule(day)}
+                                                >
+                                                    Xóa
+                                                </button>
+                                            )}
+                                        </div>
                                     ))}
-                                </ul>
-                            )} */}
-                            {events.length > 0 ? (
-                                <TimeTable events={events} />
-                            ) : (
-                                <p>Đang tải dữ liệu lịch hẹn...</p>
-                            )}
+                                </div>
 
-                        </div>
+                                {/* Nút lưu lịch trình */}
+                                < button
+                                    className="mt-6 bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded-md block mx-auto center"
+                                    onClick={saveSchedule}
+                                >
+                                    Lưu lịch trình
+                                </button >
+                            </div>
+                        ) : (
+                            <p>Hãy nhập thời gian trước</p>
+                        )}
+                    </div>
+                </div>
+
+                <div className="w-4/5 p-6">
+                    < button
+                        className="mt-3 mb-3 bg-cyan-500 text-white hover:bg-cyan-600 px-4 py-2 rounded-md block mx-auto center"
+                        onClick={() => setOpenModal(true)}
+                    >
+                        Sắp xếp lịch
+                    </button >
+                    <Modal
+                        isOpen={openModal}
+                        onRequestClose={() => setOpenModal(false)}
+                        style={{
+                            overlay: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                                zIndex: 1000  // đảm bảo overlay nằm trên các phần tử khác
+                            },
+                            content: {
+                                zIndex: 1001,  // modal phải cao hơn overlay và các phần tử khác
+                                position: 'relative', // hoặc 'absolute' / 'fixed' nếu cần
+                                // Bạn có thể giữ các style khác nếu cần
+                                width: '500px',
+                                maxWidth: '500px',
+                                margin: 'auto',
+                                borderRadius: '1rem',
+                                padding: '2rem',
+                                height: 'fit-content',
+                            },
+                        }}
+                    >
+                        <SortForm students={students} handleCreateOk={handleCreateOk} />
+                    </Modal>
+                    {events.length > 0 ? (
+                        <TimeTable events={events} />
                     ) : (
-                        <p>Hãy nhập thời gian trước</p>
+                        <p>Đang tải dữ liệu lịch hẹn...</p>
                     )}
                 </div>
             </div>
