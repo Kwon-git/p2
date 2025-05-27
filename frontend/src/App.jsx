@@ -5,6 +5,8 @@ import Login from './pages/Login'
 import HomePage from './pages/HomePage'
 import OtpVerify from './pages/OtpVerify'
 import ManageStudent from './pages/ManageStudent'
+import StudentGetNote from './pages/StudentGetNote'
+
 const App = () => {
   return (
     <Routes>
@@ -13,6 +15,7 @@ const App = () => {
       <Route path='/login' element={<Login />} />
       <Route path='/verify-otp' element={<OtpVerify />} />
       <Route path='/manage-student' element={<ManageStudent />} />
+      <Route path='/notify' element={<StudentGetNote />} />
     </Routes >
   )
 }

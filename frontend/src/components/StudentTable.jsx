@@ -4,11 +4,13 @@ import { IoMdAdd } from "react-icons/io";
 import Modal from "react-modal"
 import CreateStudent from './student_action/CreateStudent';
 import DeleteStudent from './student_action/DeleteStudent';
+import ManageNote from './student_action/ManageNote';
 import { useState } from 'react';
 import axios from 'axios';
 const StudentTable = ({ students, handleAdd, getAllStudent }) => {
     const [openModal, setOpenModal] = useState(false)
     const [openModalDelete, setOpenModalDelete] = useState(false)
+    const [openModalNote, setOpenModalNote] = useState(false)
     const [selected, setSelected] = useState("")
 
     const handleCreateAccount = (mssv) => {
@@ -25,6 +27,23 @@ const StudentTable = ({ students, handleAdd, getAllStudent }) => {
 
             })
     }
+
+    const handleDelete = () => {
+        const token = localStorage.getItem("token")
+        axios.post(`http://localhost:5000/delete/${selected}`, {}, {
+            headers: {
+                Authorization: `Bearer ${token}`, // Gửi token trong headers
+            }
+        })
+            .then((response) => {
+                getAllStudent();
+                setOpenModalDelete(false)
+            })
+            .catch((error) => {
+
+            })
+    }
+
     return (
         <div>
             <NavBar />
@@ -83,7 +102,7 @@ const StudentTable = ({ students, handleAdd, getAllStudent }) => {
                                 <DeleteStudent onClose={() => {
                                     setOpenModalDelete(false)
                                 }}
-                                    getAllStudent={getAllStudent} mssv={selected} />
+                                    deleteFuntion={handleDelete} />
                             </Modal>
                         </div >
                         <table className="table-auto border border-collapse border-blue-700 mx-40">
@@ -134,6 +153,37 @@ const StudentTable = ({ students, handleAdd, getAllStudent }) => {
                                                         </button>
                                                     </div>
                                                 )}
+                                                <button
+                                                    onClick={() => {
+                                                        setSelected(student.mssv)
+                                                        setOpenModalNote(true)
+                                                    }}
+                                                    className="bg-green-400 text-white p-2 rounded-xl hover:bg-green-500"
+                                                >
+                                                    Xem ghi chú
+                                                </button>
+                                                <Modal
+                                                    isOpen={openModalNote}
+                                                    onRequestClose={() => setOpenModalNote(false)}
+                                                    style={{
+                                                        overlay: { backgroundColor: 'rgba(0, 0, 0, 0.4)' },
+                                                        content: {
+                                                            width: '900',
+                                                            margin: 'auto',
+                                                            borderRadius: '1rem',
+                                                            padding: '2rem',
+                                                            height: "600"
+                                                        },
+                                                    }
+                                                    }
+                                                >
+
+                                                    <ManageNote onClose={() => {
+                                                        setOpenModalNote(false)
+                                                    }}
+                                                        mssv={selected}
+                                                    />
+                                                </Modal>
 
 
                                             </div>

@@ -104,6 +104,7 @@ def get_schedule():
 
     return jsonify({"username": current_user, "schedule": user.get("schedule", {})}), 200
 
+
 # @app.route()
 @app.route('/update-duration',methods=["POST"])
 @jwt_required()
@@ -117,6 +118,7 @@ def duration():
     users.update_one({"_id":user["_id"]},
                      {"$set":{"duration": duration}})
     return jsonify({"message":"Thanh cong"})
+
     
 @app.route('/get-duration',methods=["GET"])
 @jwt_required()

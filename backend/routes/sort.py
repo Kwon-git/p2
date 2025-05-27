@@ -138,14 +138,14 @@ def sort():
         print(dssv)
         while(j < len(dssv)):
             s = users.find_one({
-            "mssv": dssv[j],
+            "mssv": dssv[j][:8],
             "lecturer_id": user['_id']
             })
             print(s)
             if s and 'schedule' in s:
                for time in copylec_sche:
                    if getEdge(time, s['schedule']) == 1:
-                       g.addEdge(s['mssv'], time)
+                       g.addEdge(s['mssv']+'-'+s['hoten'], time)
             else:
                 print(f"Lỗi: sinh viên {s['mssv'] if s else dssv[j]} không có trường 'schedule'")
             j = j + 1
