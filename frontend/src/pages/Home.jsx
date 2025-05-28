@@ -6,6 +6,7 @@ import SortForm from "../components/SortForm";
 import Modal from 'react-modal'
 import TimeTable from "../components/TimeTable";
 import ScheduleForm from "../components/ScheduleForm";
+import { useSnackbar } from 'notistack'
 
 const Home = () => {
     const navigate = useNavigate();
@@ -17,8 +18,8 @@ const Home = () => {
     const [students, setStudents] = useState([])
     const [openModal, setOpenModal] = useState(false)
     const [openModalSchedule, setOpenModalSchedule] = useState(false)
-
-
+    const [allGroup, setAllGroup] = useState([])
+    const { enqueueSnackbar } = useSnackbar();
     const getAllStudent = async () => {
         setLoading(true);
         const token = localStorage.getItem("token"); // Lấy token từ localStorage
@@ -42,6 +43,17 @@ const Home = () => {
         console.log("Events đã cập nhật:", events);
     }, [events]);
 
+    const getAllGroup = () => {
+        const token = localStorage.getItem("token")
+        axios.get('http://localhost:5000/get-all-group', {
+            headers: {
+                Authorization: `Bearer ${token}`, // Gửi token trong headers
+            }
+        })
+            .then((response) => {
+                setAllGroup(response.data.groups)
+            })
+    }
 
 
     const convert = (x) => {
@@ -119,6 +131,7 @@ const Home = () => {
         getDuration();
         getAllStudent();
         getLichHen();
+        getAllGroup();
         return () => { };
     }, []);
 
@@ -175,7 +188,9 @@ const Home = () => {
                             },
                         }}
                     >
-                        <ScheduleForm />
+                        <ScheduleForm onClose={() => {
+                            setOpenModalSchedule(false)
+                        }} />
                     </Modal>
                     < button
                         className="mt-3 mb-3 bg-cyan-500 text-white text-xl hover:bg-cyan-600 px-4 py-2 rounded-md block mx-auto center"
@@ -203,7 +218,7 @@ const Home = () => {
                             },
                         }}
                     >
-                        <SortForm students={students} handleCreateOk={handleCreateOk} />
+                        <SortForm students={students} handleCreateOk={handleCreateOk} allGroup={allGroup} />
                     </Modal>
                 </div>
                 {events.length > 0 ? (

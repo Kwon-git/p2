@@ -235,6 +235,59 @@ def DeleteNote(mssv,noteId):
     else:
         return jsonify({"error": "Không tìm thấy ghi chú để xóa"}), 404
     
+
+@student_bp.route('/add-to-group',methods=["POST"])
+@jwt_required()
+def addToGroup():
+    current_user = get_jwt_identity()
+    user = users.find_one({"username":current_user})
+    data = request.json
+    mssv = data['mssv']
+    student = users.find_one({"lecturer_id":user["_id"],"mssv":mssv})
+    group_name = data['group_name']
+    users.update_one({"_id":student["_id"]},
+                     {"$set":{"group": group_name}})
+    if group_name=="":
+        return jsonify({"message":"nhom khong ten"})
+    curr_group = users.find_one({"group":group_name,"creator":current_user})
+    dssv = curr_group.get('dssv',[])
+    dssv.append(mssv)
+    users.update_one({"_id":curr_group["_id"]},
+                     {"$set":{"dssv":dssv}})
+    return jsonify({"message":"ok"})
+    
+@student_bp.route('/create-group',methods=['POST'])
+@jwt_required()
+def createGroup():
+    current_user = get_jwt_identity()
+    user = users.find_one({"username":current_user})
+    data = request.json
+    group_name = data['groupName']
+    dssv = data['dssv']
+    tmp = users.find_one({"creator":current_user,"group":group_name})
+    if tmp:
+        return jsonify({"error":" Tên nhóm đã tồn tại"}), 400
+    
+    users.insert_one({
+        "creator":current_user,
+        "group":group_name,
+        "dssv":dssv
+    })
+    for mssv in dssv:
+        student = users.find_one({"lecturer_id":user["_id"],"mssv":mssv})
+        users.update_one({"_id":student["_id"]},
+                     {"$set":{"group": group_name}})
+    return jsonify({'message': 'ok'})
+
+@student_bp.route('/get-all-group',methods=['GET'])
+@jwt_required()
+def getAllGroup():
+    current_user = get_jwt_identity()
+    groups = list(users.find({"creator":current_user}))
+    for n in groups:
+        if '_id' in n:
+           n['_id'] = str(n['_id'])
+    return jsonify({"message":"ok", "groups":groups})    
     
     
 #for student

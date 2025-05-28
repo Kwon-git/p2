@@ -1,13 +1,38 @@
 import React, { useState } from 'react'
 import axios from 'axios';
-const SortForm = ({ students, onClose, handleCreateOk }) => {
+import { useSnackbar } from 'notistack'
+const SortForm = ({ students, onClose, handleCreateOk, allGroup }) => {
     const [selectedStudents, setSelectedStudents] = useState([]);
+    const { enqueueSnackbar } = useSnackbar();
     const handleCheckboxChange = (mssv) => {
-        setSelectedStudents(prev =>
-            prev.includes(mssv)
-                ? prev.filter(id => id !== mssv) // Bỏ chọn
-                : [...prev, mssv] // Thêm vào danh sách chọn
-        );
+        // setSelectedStudents(prev =>
+        //     prev.includes(mssv)
+        //         ? prev.filter(id => id !== mssv) // Bỏ chọn
+        //         : [...prev, mssv] // Thêm vào danh sách chọn
+        // );
+        if (selectedStudents.includes(mssv)) {
+            setSelectedStudents(prev => prev.filter(id => id !== mssv))
+        }
+        else {
+            setSelectedStudents(prev => [...prev, mssv])
+        }
+    };
+
+    const handleCheckboxGroup = (group, checked) => {
+        const groupMssvList = students
+            .filter(st => group.dssv.includes(st.mssv))
+            .map(st => `${st.mssv}-${st.hoten}`);
+
+        setSelectedStudents(prev => {
+            if (checked) {
+                // Nếu tick: thêm những mssv chưa có
+                const toAdd = groupMssvList.filter(id => !prev.includes(id));
+                return [...prev, ...toAdd];
+            } else {
+                // Nếu bỏ tick: loại bỏ những mssv đang có
+                return prev.filter(id => !groupMssvList.includes(id));
+            }
+        });
     };
 
 
@@ -29,10 +54,19 @@ const SortForm = ({ students, onClose, handleCreateOk }) => {
 
                 {students.length > 0 ? (
                     <ul className="h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownSearchButton">
+                        {allGroup.map((grup) => (
+                            <li key={grup._id}>
+                                <div className="flex items-center p-2 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+                                    <input id={grup._id} type="checkbox" value="" onChange={(e) => handleCheckboxGroup(grup, e.target.checked)} class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+                                    <label for={grup._id} className="w-full ms-2 text-sm font-medium text-gray-900 rounded-sm dark:text-gray-300">{grup.group}</label>
+                                </div>
+                            </li>
+                        ))}
+
                         {students.map((student) => (
                             <li key={student.mssv}>
                                 <div className="flex items-center p-2 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
-                                    <input id={student.mssv} type="checkbox" value="" onChange={() => handleCheckboxChange(student.mssv + '-' + student.hoten)} class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+                                    <input id={student.mssv} type="checkbox" checked={selectedStudents.includes(student.mssv + '-' + student.hoten)} value="" onChange={() => handleCheckboxChange(student.mssv + '-' + student.hoten)} class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
                                     <label for={student.mssv} className="w-full ms-2 text-sm font-medium text-gray-900 rounded-sm dark:text-gray-300">{student.mssv + " - " + student.hoten}</label>
                                 </div>
                             </li>
@@ -45,7 +79,11 @@ const SortForm = ({ students, onClose, handleCreateOk }) => {
             </div>
             < button
                 className="mt-6 bg-cyan-500 text-white hover:bg-cyan-600 px-4 py-2 rounded-md block mx-auto center"
-                onClick={() => handleCreateOk(selectedStudents)}
+                onClick={() => {
+                    handleCreateOk(selectedStudents)
+                    enqueueSnackbar('Sắp xếp lịch thành công', { variant: 'success' })
+                    console.log(selectedStudents)
+                }}
             >
                 OK
             </button >

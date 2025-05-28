@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from 'notistack'
 
-const ScheduleForm = () => {
+const ScheduleForm = ({ onClose }) => {
     const navigate = useNavigate();
     const [schedule, setSchedule] = useState({});
     const [loading, setLoading] = useState(false);
@@ -12,6 +13,7 @@ const ScheduleForm = () => {
     const daysOfWeek = [2, 3, 4, 5, 6]; // Thứ 2 -> 7
     const [timeOptions, setTimeOptions] = useState([])
     const array = [0.25, 0.5, 0.75, 1]
+    const { enqueueSnackbar } = useSnackbar();
 
     const formatTime = (time) => {
         const hours = Math.floor(time).toString().padStart(2, '0');
@@ -134,7 +136,6 @@ const ScheduleForm = () => {
             )
             .then(() => {
                 setLoading(false);
-                navigate("/home");
             })
             .catch((error) => {
                 setLoading(false);
@@ -289,7 +290,11 @@ const ScheduleForm = () => {
                         {/* Nút lưu lịch trình */}
                         < button
                             className="mt-6 bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded-md block mx-auto center"
-                            onClick={saveSchedule}
+                            onClick={() => {
+                                saveSchedule()
+                                enqueueSnackbar('Chọn lịch thành công', { variant: 'success' })
+                                onClose()
+                            }}
                         >
                             Lưu lịch trình
                         </button >
@@ -298,7 +303,7 @@ const ScheduleForm = () => {
                     <p>Hãy nhập thời gian trước</p>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 
