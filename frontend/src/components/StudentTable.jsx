@@ -9,6 +9,8 @@ import { useState } from 'react';
 import axios from 'axios';
 import CreateGroup from './CreateGroup';
 import { CiEdit } from "react-icons/ci";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import DeleteGroup from './DeleteGroup';
 const StudentTable = ({ students, handleAdd, getAllStudent }) => {
     const [openModal, setOpenModal] = useState(false)
     const [openModalDelete, setOpenModalDelete] = useState(false)
@@ -16,6 +18,7 @@ const StudentTable = ({ students, handleAdd, getAllStudent }) => {
     const [selected, setSelected] = useState("")
     const [openModalGroup, setOpenModalGroup] = useState(false)
     const [modalAddGroup, setModalAddGroup] = useState(false)
+    const [modalDeleteGroup, setModalDeleteGroup] = useState(false)
     const [group, setGroup] = useState("")
     const [allGroup, setAllGroup] = useState([])
     const handleCreateAccount = (mssv) => {
@@ -107,6 +110,13 @@ const StudentTable = ({ students, handleAdd, getAllStudent }) => {
                                     <IoMdAdd className="mr-2 text-xl" />
                                     Tạo nhóm
                                 </button>
+                                <button
+                                    onClick={() => setModalDeleteGroup(true)}
+                                    className="flex items-center bg-red-500 text-white font-medium px-4 py-2  rounded-lg hover:bg-blue-600 transition duration-200"
+                                >
+                                    <RiDeleteBin6Line className="mr-2 text-xl" />
+                                    Xóa nhóm
+                                </button>
                             </div>
                             <Modal
                                 isOpen={openModalGroup}
@@ -176,6 +186,29 @@ const StudentTable = ({ students, handleAdd, getAllStudent }) => {
                                     setOpenModalDelete(false)
                                 }}
                                     deleteFuntion={handleDelete} />
+                            </Modal>
+
+                            <Modal
+                                isOpen={modalDeleteGroup}
+                                onRequestClose={() => setModalDeleteGroup(false)}
+                                style={{
+                                    overlay: { backgroundColor: 'rgba(0, 0, 0, 0.4)' },
+                                    content: {
+                                        width: 'fit-content',
+                                        margin: 'auto',
+                                        borderRadius: '1rem',
+                                        padding: '2rem',
+                                        height: "fit-content"
+                                    },
+                                }
+                                }
+                            >
+
+                                <DeleteGroup onClose={() => {
+                                    setModalDeleteGroup(false)
+                                }}
+                                    groups={allGroup}
+                                    getAllGroup={getAllGroup} />
                             </Modal>
 
                             <Modal

@@ -288,7 +288,16 @@ def getAllGroup():
         if '_id' in n:
            n['_id'] = str(n['_id'])
     return jsonify({"message":"ok", "groups":groups})    
-    
+
+@student_bp.route('/delete-group', methods=['POST'])
+@jwt_required()
+def deleteGroup():
+    current_user = get_jwt_identity()
+    data = request.json
+    groups = data['groups']
+    users.delete_many({"creator":current_user,"group": {"$in": groups}})
+    return jsonify({"message":"ok"})
+   
     
 #for student
 @student_bp.route("/get-note",methods = ["GET"])
