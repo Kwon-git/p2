@@ -2,6 +2,6 @@
  -> backend chạy lệnh:  python app.py
  -> frontend chạy lệnh: npm run dev
 # Mô tả chương trình:
-Giảng viên đăng nhập vào chương trình với vai trò "lecturer", tạo danh sách sinh viên, cung cấp tài khoản với vai trò "student" qua email trường của sinh viên.
-Giảng viên và sinh viên chọn khung giờ rảnh trong tuần với email được cấp
-Giảng viên lựa chọn chức năng xếp lịch, hệ thống đưa ra lịch gặp sinh viên trong tuần
+-Giảng viên đăng nhập vào chương trình với vai trò "lecturer", tạo danh sách sinh viên, cung cấp tài khoản với vai trò "student" qua email trường của sinh viên.
+-Giảng viên và sinh viên chọn khung giờ rảnh trong tuần với email được cấp
+-Giảng viên lựa chọn chức năng xếp lịch, hệ thống đưa ra lịch gặp sinh viên trong tuần
