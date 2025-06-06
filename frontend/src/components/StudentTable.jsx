@@ -21,6 +21,8 @@ const StudentTable = ({ students, handleAdd, getAllStudent }) => {
     const [modalDeleteGroup, setModalDeleteGroup] = useState(false)
     const [group, setGroup] = useState("")
     const [allGroup, setAllGroup] = useState([])
+    const myStudents = students.sort((a, b) => a.group < b.group ? -1 : 1)
+    console.log(myStudents)
     const handleCreateAccount = (mssv) => {
         const token = localStorage.getItem("token")
         axios.post(`http://localhost:5000/create-account/${mssv}`, {}, {
@@ -61,6 +63,7 @@ const StudentTable = ({ students, handleAdd, getAllStudent }) => {
             .then((response) => {
                 getAllStudent()
                 setModalAddGroup(false)
+                getAllGroup()
             })
             .catch((error) => {
 

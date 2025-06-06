@@ -62,7 +62,17 @@ def verify_otp():
         return jsonify({"message": "Xác minh thành công, tài khoản đã tạo!"}), 201
     else:
         return jsonify({"error": "OTP không hợp lệ"}), 400
-    
+
+# @app.route("/resend-otp",methods=['POST'])
+# def resend():
+#     data = request.json
+#     username = data.get("username")
+#     secret = pyotp.random_base32()
+#     totp = pyotp.TOTP(s=secret,interval=300)
+#     temp_user_store[username]['secret'] = secret
+#     send_email(username,"Xac thuc ma OTP",f"Ma OTP cua ban la :{totp.now()}")
+#     print("Sent")
+#     return jsonify({"message":"ok"})
 
 @app.route("/login", methods=["POST"])
 def login():

@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
+import { useSnackbar } from 'notistack'
 const HomeStudent = () => {
     const navigate = useNavigate();
     const [schedule, setSchedule] = useState({});
     const [loading, setLoading] = useState(false);
+    const { enqueueSnackbar } = useSnackbar();
     const daysOfWeek = [2, 3, 4, 5, 6, 7]; // Thứ 2 -> 7
     const timeOptions = Array.from({ length: 48 }, (_, i) => (8 + i * 0.25).toFixed(2)) // Tạo danh sách từ 8.0 đến 19.5
     const getAllSchedule = async () => {
@@ -198,7 +200,11 @@ const HomeStudent = () => {
                 {/* Nút lưu lịch trình */}
                 < button
                     className="mt-6 bg-green-500 text-white px-4 py-2 hover:bg-green-600 rounded-md block mx-auto center"
-                    onClick={saveSchedule}
+                    onClick={() => {
+                        saveSchedule()
+                        enqueueSnackbar('Lưu lịch thành công', { variant: 'success' })
+                    }
+                    }
                 >
                     Lưu lịch trình
                 </button >

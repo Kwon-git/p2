@@ -4,7 +4,7 @@ import axios from 'axios'
 import { useParams } from 'react-router-dom';
 import Modal from "react-modal"
 const ManageStudent = () => {
-    const [students, setStudents] = useState({})
+    const [students, setStudents] = useState([])
     const [loading, setLoading] = useState(false)
     const { mssv } = useParams();
     const getAllStudent = async () => {

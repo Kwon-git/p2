@@ -97,7 +97,7 @@ def create_account(mssv):
                      {"$set":{"username":username, "password":password}})
    
     send_email(get_email(student["hoten"],mssv),"Da cap tai khoan",f"Tai khoan cua ban: TK:{username}; MK: {password2}")
-    print(password2)
+    print(f"Tai khoan cua ban: TK:{username}; MK: {password2}")
     return jsonify({"message":"Tao thanh cong"})
     
 

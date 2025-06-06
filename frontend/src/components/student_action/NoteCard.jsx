@@ -14,6 +14,8 @@ const NoteCard = ({ note, mssv, noteId, getNotes }) => {
             headers: {
                 Authorization: `Bearer ${token}`, // Gửi token trong headers
             }
+        }).then(() => {
+            getNotes()
         })
     }
 

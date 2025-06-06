@@ -212,7 +212,7 @@ const ScheduleForm = ({ onClose }) => {
                                 <option key={time} value={time}>{formatDuration(time)}</option>
                             ))}
                         </select>
-                        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+                        {/* {error && <p className="text-red-500 text-sm mb-2">{error}</p>} */}
                     </div>
                     <div className="flex justify-end">
                         <button
@@ -291,6 +291,15 @@ const ScheduleForm = ({ onClose }) => {
                         < button
                             className="mt-6 bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded-md block mx-auto center"
                             onClick={() => {
+                                // Kiểm tra xem có ô nào rỗng không
+                                const hasEmptyField = Object.values(schedule).some(day =>
+                                    day.some(slot => slot.start_time === "" || slot.end_time === "")
+                                );
+
+                                if (hasEmptyField) {
+                                    enqueueSnackbar('Vui lòng chọn đầy đủ thời gian bắt đầu và kết thúc cho tất cả các khung giờ.', { variant: 'error' });
+                                    return;
+                                }
                                 saveSchedule()
                                 enqueueSnackbar('Chọn lịch thành công', { variant: 'success' })
                                 onClose()
