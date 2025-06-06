@@ -4,7 +4,7 @@
  -> Truy cập vào đường dẫn:  http://localhost:5173/login
 # Mô tả chương trình:
 -Giảng viên đăng nhập vào chương trình với vai trò "lecturer", tạo danh sách sinh viên, cung cấp cho sinh viên tài khoản với vai trò "student" qua email trường của sinh viên(xem log phía backend để xem tk mk của sinh viên).
--Giảng viên và sinh viên chọn khung giờ rảnh trong tuần với email được cấp
+-Giảng viên và sinh viên chọn khung giờ rảnh trong tuần, sinh viên dùng tài khoản được giảng viên cấp
 -Giảng viên lựa chọn chức năng xếp lịch, hệ thống đưa ra lịch gặp sinh viên trong tuần
 # CHÚ Ý: 
 Chức năng xếp lịch chỉ sử dụng được khi đã có sinh viên và có lịch hẹn thỏa mãn 
