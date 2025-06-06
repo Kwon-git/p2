@@ -9,6 +9,7 @@
 # CHÚ Ý: 
 Chức năng xếp lịch chỉ sử dụng được khi đã có sinh viên và có lịch hẹn thỏa mãn 
 
+# DEMO với 1 sinh viên (tương tự nếu thêm nhiều sinh viên hơn)
 Giao diện thêm sinh viên
 ![image](https://github.com/user-attachments/assets/909627ec-12bf-48be-9a60-258d531d1040)
 
