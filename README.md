@@ -7,7 +7,7 @@
 -Giảng viên và sinh viên chọn khung giờ rảnh trong tuần, sinh viên dùng tài khoản được giảng viên cấp
 -Giảng viên lựa chọn chức năng xếp lịch, hệ thống đưa ra lịch gặp sinh viên trong tuần
 # CHÚ Ý: 
-Chức năng xếp lịch chỉ sử dụng được khi đã có sinh viên và có lịch hẹn thỏa mãn 
+Chức năng xếp lịch chỉ sử dụng được khi đã có sinh viên và có lịch hẹn thỏa mãn  
 Yêu cầu:  MongoDB (chạy local tại mongodb://localhost:27017)
 
 # DEMO với 1 sinh viên (tương tự nếu thêm nhiều sinh viên hơn)
